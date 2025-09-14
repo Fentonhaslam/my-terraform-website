@@ -1,111 +1,121 @@
-🚀 Build a Static Website with Terraform, S3, and CloudFront
+# 🚀 Build a Static Website with Terraform, S3, and CloudFront
 
-This guide walks you through creating a simple website hosted on AWS S3 with CloudFront as a CDN — using Terraform.
+This guide walks you through creating a simple website hosted on **AWS S3** with **CloudFront** as a CDN — using **Terraform**.
 
-By the end, you’ll:
+By the end, you’ll be able to:
+- ✅ Host a working static website on AWS  
+- ✅ Understand how Terraform provisions AWS resources  
+- ✅ Deploy your own HTML files to S3  
 
-Have a working static website hosted on AWS
+---
 
-Understand how Terraform provisions AWS resources
+## 1. Prerequisites
 
-Deploy your own HTML files to S3
+Make sure you have the following installed and configured:
+- An **AWS account**
+- **AWS CLI** (`aws configure`)
+- **Terraform**
 
-1. Prerequisites
+---
 
-An AWS account
+## 2. Project Setup
 
-AWS CLI installed & configured (aws configure)
+1. Create a new directory for your project:
 
-Terraform
- installed
+   mkdir my-terraform-website && cd my-terraform-website
 
-2. Project Setup
+2. Initialize a new Terraform project:
 
-Create a new directory for your project:
+   terraform init
 
-mkdir my-terraform-website && cd my-terraform-website
+3. You’ll create three Terraform files:
+   - main.tf → defines resources  
+   - variables.tf → stores configurable inputs  
+   - outputs.tf → shows important info after deployment  
 
+*(Don’t worry, the details are below — you’ll write them step by step!)*
 
-Initialize a new Terraform project:
+---
 
-terraform init
+## 3. Define the Provider
 
+In `main.tf`, start with:
 
-You’ll create three Terraform files:
+    provider "aws" {
+      region = var.aws_region
+    }
 
-main.tf → defines resources
+---
 
-variables.tf → stores configurable inputs
+## 4. Create an S3 Bucket
 
-outputs.tf → shows important info after deployment
+In `main.tf`, add:
+- An S3 bucket resource  
+- A bucket policy for public read  
+- Website hosting configuration (`index.html`, `error.html`)  
 
-(Don’t worry, details are below — you’ll write them step by step!)
+---
 
-3. Define the Provider
+## 5. Add CloudFront
 
-In main.tf, start with:
+Still in `main.tf`, define:
+- An aws_cloudfront_distribution resource  
+- Point it to the S3 bucket as the origin  
+- Set a default cache behavior  
 
-provider "aws" {
-  region = var.aws_region
-}
+---
 
-4. Create an S3 Bucket
+## 6. Variables
 
-Add to main.tf:
+In `variables.tf`, add:
 
-A bucket resource
+    variable "aws_region" {
+      default = "us-east-1"
+    }
 
-A bucket policy for public read
+    variable "bucket_name" {
+      description = "Unique bucket name"
+    }
 
-Website hosting configuration (index.html, error.html)
+---
 
-5. Add CloudFront
+## 7. Outputs
 
-Still in main.tf, define:
+In `outputs.tf`, add:
 
-A aws_cloudfront_distribution resource
+    output "cloudfront_url" {
+      value = aws_cloudfront_distribution.cdn.domain_name
+    }
 
-Point it to the S3 bucket as the origin
+---
 
-Set default cache behavior
+## 8. Deploy 🚀
 
-6. Variables
+Run the following:
 
-In variables.tf, add:
+    terraform init
+    terraform apply -var="bucket_name=my-unique-bucket-name"
 
-variable "aws_region" {
-  default = "us-east-1"
-}
+---
 
-variable "bucket_name" {
-  description = "Unique bucket name"
-}
+## 9. Upload Your Website
 
-7. Outputs
+1. Create a folder called `site/` with at least:  
+   - index.html  
+   - error.html  
 
-In outputs.tf, add:
+2. Upload your site files to S3:
 
-output "cloudfront_url" {
-  value = aws_cloudfront_distribution.cdn.domain_name
-}
+    aws s3 cp ./site/ s3://my-unique-bucket-name/ --recursive
 
-8. Deploy 🚀
+---
 
-Run:
+## 10. Visit Your Website 🎉
 
-terraform init
-terraform apply -var="bucket_name=my-unique-bucket-name"
+Check the CloudFront URL:
 
-9. Upload Your Website
+    terraform output cloudfront_url
 
-Create a folder site/ with index.html and error.html.
+Open it in your browser and see your site live! 🚀  
 
-Upload:
-
-aws s3 cp ./site/ s3://my-unique-bucket-name/ --recursive
-
-10. Visit Your Website 🎉
-
-Check the output URL:
-
-terraform output cloudfront_url
+---
